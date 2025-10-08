@@ -1,5 +1,5 @@
 import { enable, initialize } from "@electron/remote/main";
-import { BrowserWindow, app, components, ipcMain, session } from "electron";
+import { BrowserWindow, app, ipcMain, session } from "electron";
 import path from "path";
 import { globalEvents } from "./constants/globalEvents";
 import { settings } from "./constants/settings";
@@ -178,7 +178,10 @@ app.on("ready", async () => {
   }
 
   if (isMainInstance() || isMultipleInstancesAllowed()) {
-    await components.whenReady();
+    // components is an optional electron API in some builds; access safely at runtime
+    const components: any = (app as any).components;
+
+    if (components?.whenReady) await components.whenReady();
     initialize();
 
     // Adblock
@@ -190,7 +193,7 @@ app.on("ready", async () => {
       });
     }
 
-    Logger.log("components ready:", components.status());
+    Logger.log("components ready:", components?.status ? components.status() : "n/a");
 
     createWindow();
     addMenu(mainWindow);

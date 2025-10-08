@@ -96,7 +96,14 @@ function handleFileUploads() {
   document.getElementById("theme-files").addEventListener("change", function (e: any) {
     Array.from(e.target.files).forEach((file: File) => {
       const destination = `${app.getPath("userData")}/themes/${file.name}`;
-      fs.copyFileSync(file.path, destination, null);
+      // In some Electron contexts File may have a `path` property not present in DOM lib types
+      const filePath = (file as any).path || null;
+      if (filePath) {
+        fs.copyFileSync(filePath, destination, null);
+      } else {
+        // Fallback: try to read via File API (not available in Node), so log for debug
+        Logger.log(`File path not available for upload: ${file.name}`);
+      }
     });
     fileMessage.innerText = `${e.target.files.length} files successfully uploaded`;
     getThemeFiles();
