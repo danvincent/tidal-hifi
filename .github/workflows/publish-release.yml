@@ -17,14 +17,14 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Update apt
         run: sudo apt-get update
 
       - name: Install system dependencies
         run: sudo apt-get install -y libarchive-tools build-essential
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,13 +36,6 @@ jobs:
 
       - name: Build .deb package
         run: npm run build-deb
-
-      - name: Get version from package.json
-        id: get_version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Version: $VERSION"
 
       - name: List dist directory
         run: |
